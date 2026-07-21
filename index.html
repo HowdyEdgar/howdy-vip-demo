@@ -1174,7 +1174,11 @@
                       "</span>\
                       <span><a class='request' href='" +
                       currentEvent.link +
-                      "' target='_blank' rel='noopener'>Request Tickets</a></span>\
+                      "' target='_blank' rel='noopener' data-event=\"" +
+                      currentEvent.eventName +
+                      "\" data-event-date='" +
+                      currentEvent.date +
+                      "'>Request Tickets</a></span>\
                     </li>\
                   "
                   );
@@ -1209,6 +1213,27 @@
             cityFilter.off("change").on("change", function () {
               renderMoodyEvents();
             });
+
+            // Log Blackthorn link clicks to the Link Clicks tab (fire and
+            // forget - the link still opens in a new tab)
+            $("#moodyEvents")
+              .off("click", "a.request")
+              .on("click", "a.request", function () {
+                var data = new FormData();
+                data.append("First Name", $("body").attr("data-first-name") || "");
+                data.append("Last Name", $("body").attr("data-last-name") || "");
+                data.append("Phone", $("body").attr("data-phone") || "");
+                data.append("Event", $(this).attr("data-event") || "");
+                data.append("Event Date", $(this).attr("data-event-date") || "");
+                data.append("Link", $(this).attr("href") || "");
+                data.append("sheetName", "Link Clicks");
+                var logUrl = $("#ticket-request-form").attr("action");
+                if (navigator.sendBeacon) {
+                  navigator.sendBeacon(logUrl, data);
+                } else {
+                  $.ajax({ url: logUrl, method: "POST", data: data, processData: false, contentType: false });
+                }
+              });
 
             $("#moodyEvents")
               .off("click", "button.request")
