@@ -332,6 +332,64 @@
         margin: 0;
         line-height: 1.5;
       }
+      .access-form .field-error {
+        display: none;
+        font-size: 13px;
+        color: #ff9f8a;
+        margin: -6px 0 0;
+        padding-left: 18px;
+        text-align: left;
+        line-height: 1.4;
+      }
+      .access-form .field-error.visible {
+        display: block;
+      }
+      .access-form input.invalid {
+        border-color: rgba(255, 159, 138, 0.6);
+      }
+      .access-form .select-wrap {
+        position: relative;
+      }
+      .access-form .select-wrap::after {
+        content: '';
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 6px solid rgba(255, 255, 255, 0.8);
+        pointer-events: none;
+      }
+      .access-form .select-wrap select {
+        -webkit-appearance: none;
+        appearance: none;
+        outline: 0 none;
+        width: 100%;
+        padding: 12px 40px 12px 18px;
+        font-size: 16px;
+        font-family: inherit;
+        border-radius: 32px;
+        color: white;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        transition: border-color 0.3s ease;
+        text-align: left;
+      }
+      .access-form .select-wrap select:hover,
+      .access-form .select-wrap select:focus {
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+      .access-form .select-wrap select:invalid {
+        color: #bdbdc0;
+      }
+      .access-form .select-wrap select option {
+        color: black;
+      }
       .access-success {
         display: none;
         margin: 30px auto 0;
@@ -618,12 +676,21 @@
       <p>Request access below and we’ll take care of the rest.</p>
       <form id="access-request-form" class="access-form" method="POST" action="https://script.google.com/macros/s/AKfycbzXO10f8bpUorhivt_ugka6NPFXM0BYYEq6oeKqD5wbuUlorem5HBHx5RhbIF7ZIjUy/exec" autocomplete="on">
         <input type="text" name="Full Name" placeholder="Full name" required />
-        <input type="email" name="Email Address" placeholder="Email" required />
-        <input type="tel" name="Phone Number" id="access-phone" placeholder="Phone number (10 digits)" inputmode="numeric" pattern="\d{10}" maxlength="10" required />
+        <input type="email" name="Email Address" id="access-email" placeholder="Business email" required />
+        <p class="field-error" id="access-email-error">Please use your business email.</p>
+        <input type="tel" name="Phone Number" id="access-phone" placeholder="Phone number - no dashes" inputmode="numeric" maxlength="10" required />
+        <p class="field-error" id="access-phone-error">Phone number must be exactly 10 digits.</p>
         <input type="text" name="Title" placeholder="Job title" required />
         <input type="text" name="Company" placeholder="Company" required />
         <input type="text" name="LinkedIn" placeholder="LinkedIn URL (optional)" />
-        <input type="text" name="Location" placeholder="City, State" required />
+        <div class="select-wrap">
+          <select name="Location" id="access-location" required>
+            <option value="" disabled selected>Location</option>
+            <option value="Texas">Texas</option>
+            <option value="California">California</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
         <input type="hidden" name="sheetName" value="Form Requests" />
         <button type="submit">Request Access</button>
         <p class="form-note">We review requests regularly. Once you’re approved, this page will unlock with your phone number.</p>
@@ -801,13 +868,71 @@
 
       // Access Request Form (writes to the Form Requests tab; the sheet's
       // checkbox automation then copies approved people to the VIP List)
+      var FREE_EMAIL_DOMAINS = [
+        "gmail.com", "googlemail.com", "yahoo.com", "ymail.com",
+        "hotmail.com", "outlook.com", "live.com", "msn.com", "aol.com",
+        "icloud.com", "me.com", "mac.com", "proton.me", "protonmail.com",
+        "pm.me", "gmx.com", "gmx.net", "mail.com", "yandex.com", "zoho.com"
+      ];
+
+      function isBusinessEmail(email) {
+        var at = email.lastIndexOf("@");
+        if (at < 1) return false;
+        var domain = email.slice(at + 1).toLowerCase().trim();
+        return domain.indexOf(".") > 0 && $.inArray(domain, FREE_EMAIL_DOMAINS) === -1;
+      }
+
+      // Phone: digits only - strip letters/dashes as they are typed and flag it
+      $("#access-phone").on("input", function () {
+        var raw = $(this).val();
+        var digits = raw.replace(/\D/g, "").slice(0, 10);
+        $(this).val(digits);
+        if (/\D/.test(raw)) {
+          $("#access-phone-error").text("Numbers only - no dashes or spaces.").addClass("visible");
+          $(this).addClass("invalid");
+        } else if (digits.length === 10) {
+          $("#access-phone-error").removeClass("visible");
+          $(this).removeClass("invalid");
+        }
+      });
+
+      $("#access-phone").on("blur", function () {
+        var digits = $(this).val();
+        if (digits.length > 0 && digits.length !== 10) {
+          $("#access-phone-error").text("Phone number must be exactly 10 digits - you entered " + digits.length + ".").addClass("visible");
+          $(this).addClass("invalid");
+        }
+      });
+
+      $("#access-email").on("blur input", function () {
+        var email = $(this).val().trim();
+        if (email && email.indexOf("@") > -1 && !isBusinessEmail(email)) {
+          $("#access-email-error").addClass("visible");
+          $(this).addClass("invalid");
+        } else {
+          $("#access-email-error").removeClass("visible");
+          $(this).removeClass("invalid");
+        }
+      });
+
       $("#access-request-form").on("submit", function (e) {
         e.preventDefault();
         var form = this;
         var phoneField = $("#access-phone");
-        phoneField.val(phoneField.val().replace(/\D/g, ""));
+        phoneField.val(phoneField.val().replace(/\D/g, "").slice(0, 10));
         if (!form.checkValidity()) {
           form.reportValidity();
+          return;
+        }
+        var digits = phoneField.val();
+        if (digits.length !== 10) {
+          $("#access-phone-error").text("Phone number must be exactly 10 digits - you entered " + digits.length + ".").addClass("visible");
+          phoneField.addClass("invalid").focus();
+          return;
+        }
+        if (!isBusinessEmail($("#access-email").val().trim())) {
+          $("#access-email-error").addClass("visible");
+          $("#access-email").addClass("invalid").focus();
           return;
         }
         var data = new FormData(form);
