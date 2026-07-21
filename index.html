@@ -812,6 +812,43 @@
       src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"
     ></script>
     <script>
+      // DEMO MODE: on GitHub Pages (or with ?demo=1) the page runs fully
+      // self-contained - canned gate responses, a bundled events snapshot
+      // (demo-feed.json), and NO writes to the production sheet.
+      // Enter any 10-digit number to get in; 0000000000 shows the
+      // not-on-the-list flow with the access-request form.
+      var IS_DEMO = /github\.io$/.test(location.hostname) || /[?&]demo=1/.test(location.search);
+      if (IS_DEMO) {
+        $(function () {
+          $("body").append(
+            "<div style='position:fixed;bottom:12px;left:12px;z-index:1000;background:#ECD0B5;color:black;font-size:12px;font-weight:bold;letter-spacing:1px;padding:6px 14px;border-radius:32px;'>DEMO MODE - any number gets in, 0000000000 shows the request form</div>"
+          );
+        });
+        var demoRealAjax = $.ajax;
+        $.ajax = function (opts) {
+          var url = (opts && opts.url) || "";
+          if (url.indexOf("validate-phone") > -1) {
+            var body = {};
+            try { body = JSON.parse(opts.data || "{}"); } catch (err) {}
+            if (body.phone === "0000000000") {
+              opts.success({ allowed: false });
+            } else {
+              opts.success(["Demo", "Guest", body.phone || "5555550123", "demo@howdy.com", "Howdy", "VIP", "Howdy", "Austin, TX", ""]);
+            }
+            return;
+          }
+          if (url.indexOf("/api/vip/events/howdy") > -1) { opts.success({ values: [] }); return; }
+          if (url.indexOf("/api/vip/events/moody") > -1) {
+            return demoRealAjax.call($, { type: "GET", dataType: "json", url: "demo-feed.json", success: opts.success });
+          }
+          if (url.indexOf("script.google.com") > -1) {
+            if (opts.success) setTimeout(opts.success, 300);
+            return;
+          }
+          return demoRealAjax.apply($, arguments);
+        };
+      }
+
       // Check if Chrome
       $(document).ready(function () {
         if (
@@ -1219,6 +1256,7 @@
             $("#moodyEvents")
               .off("click", "a.request")
               .on("click", "a.request", function () {
+                if (IS_DEMO) return;
                 var data = new FormData();
                 data.append("First Name", $("body").attr("data-first-name") || "");
                 data.append("Last Name", $("body").attr("data-last-name") || "");
