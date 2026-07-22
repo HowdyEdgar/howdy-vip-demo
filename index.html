@@ -309,6 +309,26 @@
       .access-form input:focus {
         border-color: rgba(255, 255, 255, 0.25);
       }
+      .access-form .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        text-align: left;
+      }
+      .access-form .field-label {
+        -webkit-appearance: none;
+        appearance: none;
+        display: block;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.75);
+        border-radius: 0;
+        cursor: default;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        padding: 0 0 0 18px;
+        text-align: left;
+      }
       .access-form input::placeholder {
         color: #bdbdc0;
         font-weight: normal;
@@ -336,7 +356,7 @@
         display: none;
         font-size: 13px;
         color: #ff9f8a;
-        margin: -6px 0 0;
+        margin: 0;
         padding-left: 18px;
         text-align: left;
         line-height: 1.4;
@@ -626,11 +646,10 @@
           placeholder="Type 10 digit phone number here"
           autocomplete="off"
           inputmode="numeric"
-          pattern="\d{10}"
-          maxlength="10"
+          pattern="\d{3}-\d{3}-\d{4}"
+          maxlength="12"
           required=""
         />
-        <h4>No dashes needed</h4>
         <button type="submit">
           <span class="mdi mdi-magnify"></span>Search
         </button>
@@ -675,21 +694,42 @@
       <h1>You’re not on the VIP list yet!</h1>
       <p>Request access below and we’ll take care of the rest.</p>
       <form id="access-request-form" class="access-form" method="POST" action="https://script.google.com/macros/s/AKfycbzXO10f8bpUorhivt_ugka6NPFXM0BYYEq6oeKqD5wbuUlorem5HBHx5RhbIF7ZIjUy/exec" autocomplete="on">
-        <input type="text" name="Full Name" placeholder="Full name" required />
-        <input type="email" name="Email Address" id="access-email" placeholder="Business email" required />
-        <p class="field-error" id="access-email-error">Please use your business email.</p>
-        <input type="tel" name="Phone Number" id="access-phone" placeholder="Phone number - no dashes" inputmode="numeric" maxlength="10" required />
-        <p class="field-error" id="access-phone-error">Phone number must be exactly 10 digits.</p>
-        <input type="text" name="Title" placeholder="Job title" required />
-        <input type="text" name="Company" placeholder="Company" required />
-        <input type="text" name="LinkedIn" placeholder="LinkedIn URL (optional)" />
-        <div class="select-wrap">
-          <select name="Location" id="access-location" required>
-            <option value="" disabled selected>Location</option>
-            <option value="Texas">Texas</option>
-            <option value="California">California</option>
-            <option value="Other">Other</option>
-          </select>
+        <div class="field">
+          <label class="field-label" for="access-full-name">Full name</label>
+          <input type="text" name="Full Name" id="access-full-name" required />
+        </div>
+        <div class="field">
+          <label class="field-label" for="access-email">Business email</label>
+          <input type="email" name="Email Address" id="access-email" placeholder="name@company.com" required />
+          <p class="field-error" id="access-email-error">Please use your business email.</p>
+        </div>
+        <div class="field">
+          <label class="field-label" for="access-phone">Phone number</label>
+          <input type="tel" name="Phone Number" id="access-phone" placeholder="512-555-0123" inputmode="numeric" maxlength="12" required />
+          <p class="field-error" id="access-phone-error">Phone number must be exactly 10 digits.</p>
+        </div>
+        <div class="field">
+          <label class="field-label" for="access-title">Job title</label>
+          <input type="text" name="Title" id="access-title" required />
+        </div>
+        <div class="field">
+          <label class="field-label" for="access-company">Company</label>
+          <input type="text" name="Company" id="access-company" required />
+        </div>
+        <div class="field">
+          <label class="field-label" for="access-linkedin">LinkedIn URL (optional)</label>
+          <input type="text" name="LinkedIn" id="access-linkedin" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="access-location">Location</label>
+          <div class="select-wrap">
+            <select name="Location" id="access-location" required>
+              <option value="" disabled selected>Select one...</option>
+              <option value="Texas">Texas</option>
+              <option value="California">California</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
         </div>
         <input type="hidden" name="sheetName" value="Form Requests" />
         <button type="submit">Request Access</button>
@@ -871,10 +911,23 @@
         loadMoodyEvents();
       }
 
-      // Check phone
+      // Format a string of digits as XXX-XXX-XXXX while typing
+      function formatPhone(value) {
+        var digits = value.replace(/\D/g, "").slice(0, 10);
+        if (digits.length > 6) {
+          return digits.slice(0, 3) + "-" + digits.slice(3, 6) + "-" + digits.slice(6);
+        }
+        if (digits.length > 3) {
+          return digits.slice(0, 3) + "-" + digits.slice(3);
+        }
+        return digits;
+      }
+
+      // Check phone (dashes are auto-inserted; validation uses digits only)
       $("#phoneNumber").on("input", function () {
-        var phoneNumber = $(this).val().trim();
-        if (/^\d{10}$/.test(phoneNumber)) {
+        var digits = $(this).val().replace(/\D/g, "").slice(0, 10);
+        $(this).val(formatPhone(digits));
+        if (digits.length === 10) {
           $("#phoneInput button").addClass("visible");
         } else {
           $("#phoneInput button").removeClass("visible");
@@ -919,13 +972,13 @@
         return domain.indexOf(".") > 0 && $.inArray(domain, FREE_EMAIL_DOMAINS) === -1;
       }
 
-      // Phone: digits only - strip letters/dashes as they are typed and flag it
+      // Phone: digits only, dashes auto-inserted as they type
       $("#access-phone").on("input", function () {
         var raw = $(this).val();
         var digits = raw.replace(/\D/g, "").slice(0, 10);
-        $(this).val(digits);
-        if (/\D/.test(raw)) {
-          $("#access-phone-error").text("Numbers only - no dashes or spaces.").addClass("visible");
+        $(this).val(formatPhone(digits));
+        if (/[^\d-]/.test(raw)) {
+          $("#access-phone-error").text("Numbers only.").addClass("visible");
           $(this).addClass("invalid");
         } else if (digits.length === 10) {
           $("#access-phone-error").removeClass("visible");
@@ -934,7 +987,7 @@
       });
 
       $("#access-phone").on("blur", function () {
-        var digits = $(this).val();
+        var digits = $(this).val().replace(/\D/g, "");
         if (digits.length > 0 && digits.length !== 10) {
           $("#access-phone-error").text("Phone number must be exactly 10 digits - you entered " + digits.length + ".").addClass("visible");
           $(this).addClass("invalid");
@@ -1008,7 +1061,7 @@
 
       $("#phoneInput").on("submit", function (e) {
         e.preventDefault();
-        var phoneNumber = $("#phoneNumber").val().trim();
+        var phoneNumber = $("#phoneNumber").val().replace(/\D/g, "");
         if (/^\d{10}$/.test(phoneNumber)) {
           // VIP List
           var vipListFeed = "https://www.howdy.com/api/vip/validate-phone";
@@ -1033,7 +1086,7 @@
                 // NB: use phoneNumber, not phone - "var phone" inside this
                 // callback is hoisted, so phone is undefined on this path
                 $("#rejected-vip-phone").val(phoneNumber);
-                $("#access-phone").val(phoneNumber);
+                $("#access-phone").val(formatPhone(phoneNumber));
                 return;
               }
 
