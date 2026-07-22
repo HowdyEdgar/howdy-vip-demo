@@ -330,7 +330,7 @@
         text-align: left;
       }
       .access-form input::placeholder {
-        color: #bdbdc0;
+        color: rgba(189, 189, 192, 0.45);
         font-weight: normal;
       }
       .access-form button[type="submit"] {
@@ -695,9 +695,16 @@
       <p>Request access below and we’ll take care of the rest.</p>
       <form id="access-request-form" class="access-form" method="POST" action="https://script.google.com/macros/s/AKfycbzXO10f8bpUorhivt_ugka6NPFXM0BYYEq6oeKqD5wbuUlorem5HBHx5RhbIF7ZIjUy/exec" autocomplete="on">
         <div class="field">
-          <label class="field-label" for="access-full-name">Full name</label>
-          <input type="text" name="Full Name" id="access-full-name" required />
+          <label class="field-label" for="access-first-name">First name</label>
+          <input type="text" id="access-first-name" autocomplete="given-name" required />
         </div>
+        <div class="field">
+          <label class="field-label" for="access-last-name">Last name</label>
+          <input type="text" id="access-last-name" autocomplete="family-name" required />
+        </div>
+        <!-- The sheet's Form Requests tab has a single Full Name column; the
+             two visible fields are combined into this on submit -->
+        <input type="hidden" name="Full Name" id="access-full-name" />
         <div class="field">
           <label class="field-label" for="access-email">Business email</label>
           <input type="email" name="Email Address" id="access-email" placeholder="name@company.com" required />
@@ -972,6 +979,13 @@
         return domain.indexOf(".") > 0 && $.inArray(domain, FREE_EMAIL_DOMAINS) === -1;
       }
 
+      // Example placeholders disappear the moment the field is clicked
+      $("#access-email, #access-phone").on("focus", function () {
+        $(this).data("ph", $(this).attr("placeholder")).attr("placeholder", "");
+      }).on("blur", function () {
+        if (!$(this).val()) $(this).attr("placeholder", $(this).data("ph"));
+      });
+
       // Phone: digits only, dashes auto-inserted as they type
       $("#access-phone").on("input", function () {
         var raw = $(this).val();
@@ -1008,6 +1022,9 @@
       $("#access-request-form").on("submit", function (e) {
         e.preventDefault();
         var form = this;
+        $("#access-full-name").val(
+          ($("#access-first-name").val().trim() + " " + $("#access-last-name").val().trim()).trim()
+        );
         var phoneField = $("#access-phone");
         phoneField.val(phoneField.val().replace(/\D/g, "").slice(0, 10));
         if (!form.checkValidity()) {
