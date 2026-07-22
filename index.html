@@ -366,6 +366,9 @@
       .access-form input.invalid {
         border-color: rgba(255, 159, 138, 0.6);
       }
+      .access-form input.prefilled {
+        color: rgba(189, 189, 192, 0.45);
+      }
       .access-form .select-wrap {
         position: relative;
       }
@@ -984,12 +987,24 @@
       // Example placeholders disappear the moment the field is clicked
       $("#access-email, #access-phone").on("focus", function () {
         $(this).data("ph", $(this).attr("placeholder")).attr("placeholder", "");
+        if ($(this).hasClass("prefilled")) {
+          $(this).val("").removeClass("prefilled");
+        }
       }).on("blur", function () {
         if (!$(this).val()) $(this).attr("placeholder", $(this).data("ph"));
       });
 
+      // Clicking or tabbing into the prefilled phone clears the carried-over
+      // number; typing anything also promotes it to a real value
+      $("#access-phone").on("click", function () {
+        if ($(this).hasClass("prefilled")) {
+          $(this).val("").removeClass("prefilled");
+        }
+      });
+
       // Phone: digits only, dashes auto-inserted as they type
       $("#access-phone").on("input", function () {
+        $(this).removeClass("prefilled");
         var raw = $(this).val();
         var digits = raw.replace(/\D/g, "").slice(0, 10);
         $(this).val(formatPhone(digits));
@@ -1105,7 +1120,9 @@
                 // NB: use phoneNumber, not phone - "var phone" inside this
                 // callback is hoisted, so phone is undefined on this path
                 $("#rejected-vip-phone").val(phoneNumber);
-                $("#access-phone").val(formatPhone(phoneNumber));
+                // carry the rejected number into the form as faint
+                // filler-style text that clears on first click
+                $("#access-phone").val(formatPhone(phoneNumber)).addClass("prefilled");
                 return;
               }
 
