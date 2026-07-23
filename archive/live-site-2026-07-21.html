@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, maximum-scale=1, width=device-width, user-scalable=no"
+    />
+    <title>Howdy – VIP Portal</title>
+    <link
+      rel="apple-touch-icon"
+      href="https://www.howdy.com/apple-touch-icon.png"
+    />
+    <link rel="shortcut icon" href="https://www.howdy.com/favicon.svg" />
+    <meta
+      property="og:image"
+      content="https://vip.howdy.com/assets/og-image.png"
+    />
+    <style>
+      @import url("https://rsms.me/inter/inter.css");
+      @import url("https://cdn.materialdesignicons.com/7.4.47/css/materialdesignicons.min.css");
+      * {
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-font-smoothing: antialiased;
+        outline: 0 none;
+        shape-renderer: crispEdges;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      body {
+        font-family: "Inter";
+        background: black;
+        background: #1e1e21;
+        color: white;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        font-size: 17px;
+        touch-action: pan-x pan-y;
+      }
+      .bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 200vh;
+        z-index: -1;
+        background-image: url("/assets/bg.png");
+        background-position: 50%;
+        background-size: auto 2000px;
+        animation: animStar 50s linear infinite;
+      }
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 30px;
+      }
+      .header .header-cta {
+        position: absolute;
+        top: 50%;
+        right: 30px;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 32px;
+        color: white;
+        line-height: 24px;
+        padding: 8px 16px;
+        font-size: 14px;
+        letter-spacing: -0.2px;
+        text-decoration: none;
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        font-weight: normal;
+        transition: border-color 0.3s ease;
+      }
+      .header .header-cta:hover {
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+      .header .logo {
+        position: relative;
+        display: inline-block;
+        transform: translateY(5px);
+      }
+      .header .logo:after {
+        content: "VIP";
+        position: absolute;
+        left: 100%;
+        color: white;
+        font-weight: 900;
+        padding: 10px 15px;
+        font-size: 30px;
+        transform: translateY(-10px);
+        top: 0;
+        letter-spacing: 2px;
+        border-left: 2px solid rgba(255, 255, 255, 0.2);
+        margin-left: 15px;
+        text-shadow: 0 1px rgba(0, 0, 0, 0.07);
+        background: -webkit-linear-gradient(white, #f3ddc4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .header .logo img {
+        height: 40px;
+        display: block;
+        position: relative;
+      }
+
+      .header.with-bg {
+        padding: 12px 25px;
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        background-color: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        margin: 15px 0;
+        border-radius: 32px;
+        width: calc(100% - 30px);
+        max-width: 1000px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+      }
+      .header.with-bg .header-cta {
+        right: 12px;
+      }
+      .header.with-bg .logo:after {
+        font-size: 20px;
+      }
+      .header.with-bg .logo img {
+        height: 30px;
+      }
+
+      .center {
+        text-align: center;
+      }
+      input {
+        -webkit-appearance: none;
+        appearance: none;
+        outline: 0 none;
+        font-size: inherit;
+        font-family: inherit;
+        line-height: inherit;
+        border-radius: 4px;
+        color: white;
+        font-weight: inherit;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        position: relative;
+      }
+      button {
+        -webkit-appearance: none;
+        appearance: none;
+        border: 0 none;
+        outline: 0 none;
+        font-size: inherit;
+        font-family: inherit;
+        line-height: inherit;
+        border-radius: 32px;
+        color: black;
+        background: #ecd0b5;
+        cursor: pointer;
+      }
+      label {
+        -webkit-appearance: none;
+        appearance: none;
+        border: 0 none;
+        outline: 0 none;
+        font-size: inherit;
+        font-family: inherit;
+        line-height: inherit;
+        border-radius: 32px;
+        color: black;
+        background: #ecd0b5;
+        cursor: pointer;
+      }
+      input.big-input {
+        width: calc(100% - 40px);
+        max-width: 480px;
+        font-size: 30px;
+        line-height: 60px;
+        text-align: center;
+        letter-spacing: 5px;
+        border-radius: 32px;
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2), 0 10px 15px rgba(0, 0, 0, 0.3);
+        transition: border-color 0.3s ease;
+      }
+      input.big-input:hover,
+      input.big-input:focus {
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+      input.big-input::placeholder {
+        color: #bdbdc0;
+        letter-spacing: normal;
+        font-size: 18px;
+        line-height: 1;
+        font-weight: normal;
+        display: block;
+      }
+      body.chrome input.big-input::placeholder {
+        transform: translateY(-5px);
+      }
+      button[type="submit"] {
+        font-weight: inherit;
+        position: absolute;
+        padding: 15px;
+        margin-top: 30px;
+        min-width: 140px;
+        font-weight: bold;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.3s opacity ease;
+      }
+      button[type="submit"].visible {
+        opacity: 1;
+        pointer-events: all;
+      }
+      button[type="submit"] span.mdi {
+        margin-right: 10px;
+      }
+      .step {
+        display: none;
+      }
+      .step h1 {
+        margin: 0 auto 40px;
+        font-weight: 800;
+        font-size: 40px;
+        line-height: 1.3;
+        max-width: 550px;
+        background: -webkit-linear-gradient(white, #aaaaaa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .step h2 {
+        margin: 0 0 0px;
+        font-weight: 600;
+        font-size: 24px;
+        text-wrap: balance;
+      }
+      .step h4 {
+        margin: 30px 0 0;
+        font-weight: 400;
+        opacity: 0.7;
+        font-size: 14px;
+      }
+      .step p {
+        margin: 0 auto;
+        line-height: 1.7;
+        font-size: 20px;
+        opacity: 0.9;
+      }
+      .step-01,
+      .step-sorry {
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .step-02 {
+        padding-top: 140px;
+      }
+      .step-02 p {
+        margin: -20px auto 20px;
+        padding: 0 20px;
+        max-width: 640px;
+      }
+      .step-sorry h1 {
+        max-width: none;
+      }
+      .step-sorry p {
+        max-width: 440px;
+      }
+      .step-sorry a { color: inherit; }
+      .step-sorry a:after { content: "\F03CC"; font-family: "Material Design Icons"; display: inline-block; margin-left: 5px; opacity: 0.6; font-size: 60%; transform: translateY(-1px); }
+
+      .table {
+        list-style: none;
+        text-align: left;
+        font-size: 0;
+        padding: 20px;
+        max-width: 1024px;
+        margin: 0 auto;
+      }
+      .table li {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 10px;
+      }
+      .table li span {
+        width: 25%;
+        display: inline-block;
+        font-size: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+      }
+      .table li span:nth-child(1) {
+        width: 220px;
+      }
+      .table li span:nth-child(2) {
+        width: calc(100% - 220px - 200px - 160px);
+        padding-right: 20px;
+        text-wrap-style: balance;
+      }
+      .table li span:nth-child(3) {
+        width: 200px;
+        text-align: left;
+      }
+      .table li span:nth-child(4) {
+        width: 160px;
+        text-align: left;
+      }
+      .table li.table-header span {
+        font-weight: bold;
+      }
+      .table li.table-title {
+        padding: 20px 0;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .table li.table-title .city-filter {
+        margin-top: 0;
+        position: relative;
+      }
+      .table li.table-title .city-filter::after {
+        content: '';
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 6px solid rgba(255, 255, 255, 0.8);
+        pointer-events: none;
+      }
+      .table li.table-title .city-filter select {
+        -webkit-appearance: none;
+        appearance: none;
+        outline: 0 none;
+        font-size: 14px;
+        font-family: inherit;
+        line-height: inherit;
+        border-radius: 32px;
+        color: white;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 9px 32px 9px 14px;
+        min-width: 180px;
+      }
+      .table button {
+        padding: 10px 20px;
+        font-size: 13px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      .table label {
+        padding: 10px 20px;
+        font-size: 13px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      #moodyEvents li span:nth-child(1) {
+        width: 200px;
+      }
+      #moodyEvents li span:nth-child(2) {
+        width: calc(100% - 200px - 160px - 160px - 160px);
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+        vertical-align: top;
+      }
+      #moodyEvents li span:nth-child(3) {
+        width: 160px;
+      }
+      #moodyEvents li span:nth-child(4) {
+        width: 160px;
+        text-align: left;
+      }
+      #moodyEvents li span:nth-child(5) {
+        width: 160px;
+        text-align: left;
+      }
+
+      @media screen and (max-width: 600px) {
+        .header {
+          padding: 20px;
+        }
+        .header .header-cta {
+          right: 20px;
+        }
+        .header.with-bg {
+          width: calc(100% - 20px);
+        }
+        .step h1 {
+          font-size: 25px;
+          max-width: 340px;
+          margin: 0 auto 30px;
+        }
+        .step h2 { text-align: center; }
+        .step p {
+          font-size: 15px;
+        }
+        .step-02 {
+          padding-top: 110px;
+        }
+        .step-02 p {
+          max-width: 380px;
+          margin: -10px auto 10px;
+        }
+        .step-sorry h1 {
+          max-width: 240px;
+        }
+        .step-sorry p {
+          max-width: 360px;
+        }
+        .table button {
+          width: 100%;
+        }
+        .table li {
+          padding: 15px 10px;
+        }
+        .table li.table-header {
+          display: none;
+        }
+        .table li.table-title {
+          flex-direction: column;
+          gap: 20px;
+        }
+        .table li:nth-child(2) {
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .table li span {
+          width: 100% !important;
+          display: block;
+          text-align: center !important;
+          padding: 8px 0;
+        }
+        .table li span:nth-child(2) {
+          font-weight: bold;
+          font-size: 20px;
+          line-height: 1.4;
+          white-space: normal;
+          text-wrap: balance;
+        }
+        .table li.table-title .city-filter {
+          text-align: center;
+          width: 100%;
+        }
+        .table li.table-title .city-filter select {
+          width: 100%;
+        }
+      }
+
+      @keyframes animStar {
+        from {
+          transform: translateY(0px);
+        }
+        to {
+          transform: translateY(-100vh);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <a class="logo" href="."><img src="/assets/howdy.svg" /></a>
+        <a href="https://howdy.com" target="_blank" class="header-cta"
+          >howdy.com</a
+        >
+      </div>
+    </div>
+
+    <div class="step step-01 center" style="display: block;">
+      <h1>Enter your phone number to see if you're on the list.</h1>
+      <form id="phoneInput">
+        <input
+          id="phoneNumber"
+          class="big-input"
+          type="tel"
+          placeholder="Type 10 digit phone number here"
+          autocomplete="off"
+          inputmode="numeric"
+          pattern="\d{10}"
+          maxlength="10"
+          required=""
+        />
+        <h4>No dashes needed</h4>
+        <button type="submit">
+          <span class="mdi mdi-magnify"></span>Search
+        </button>
+      </form>
+    </div>
+    <div class="step step-02 center">
+      <h1>Welcome, <span></span>!</h1>
+      <p>
+        Below is the most updated list of exclusive events that you have Howdy
+        VIP access to. Tickets available upon request.
+      </p>
+      <ul class="table" id="howdyEvents" style="padding-bottom: 60px">
+        <li class="table-title">
+          <h2>Upcoming Howdy Events</h2>
+        </li>
+        <li class="table-header">
+          <span>Date</span>
+          <span>Event</span>
+          <span>Address</span>
+          <span></span>
+        </li>
+      </ul>
+      <ul class="table" id="moodyEvents">
+        <li class="table-title">
+          <h2>Upcoming Events</h2>
+          <div class="city-filter">
+            <select id="moodyCityFilter">
+              <option value="">All cities</option>
+            </select>
+          </div>
+        </li>
+        <li class="table-header">
+          <span>Date</span>
+          <span>Event</span>
+          <span>Category</span>
+          <span>City</span>
+          <span></span>
+        </li>
+      </ul>
+    </div>
+    <div class="step step-sorry center">
+      <h1>You’re not on the VIP list yet!</h1>
+      <p>To request access, please <a href="https://forms.gle/axubkWSu5UFTL7qW7" target="_blank">click here</a> and we’ll take care of the rest.</p>
+    </div>
+
+    <!-- Ticket Request Form -->
+    <form
+      id="ticket-request-form"
+      method="POST"
+      action="https://script.google.com/macros/s/AKfycbzXO10f8bpUorhivt_ugka6NPFXM0BYYEq6oeKqD5wbuUlorem5HBHx5RhbIF7ZIjUy/exec"
+      autocomplete="off"
+      style="
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        padding: 20px;
+        text-align: center;
+        z-index: 100;
+        background: black;
+        pointer-events: none;
+        opacity: 0;
+      "
+    >
+      <input
+        type="text"
+        id="ticket-request-first-name"
+        name="First Name"
+        autocomplete="none"
+        placeholder="First Name"
+        required
+      />
+      <input
+        type="text"
+        id="ticket-request-last-name"
+        name="Last Name"
+        autocomplete="none"
+        placeholder="Last Name"
+        required
+      />
+      <input
+        type="text"
+        id="ticket-request-phone"
+        name="Phone"
+        placeholder="Phone"
+        required
+      />
+      <input
+        type="text"
+        id="ticket-request-event"
+        name="Event"
+        placeholder="Event"
+        required
+      />
+      <input
+        type="text"
+        id="ticket-request-event-date"
+        name="Event Date"
+        placeholder="Event Date"
+        required
+      />
+      <input
+        type="hidden"
+        id="sheetName"
+        name="sheetName"
+        value="Requests"
+        required
+      />
+      <input type="submit" value="Request" />
+    </form>
+
+    <!-- Ticket Request Form -->
+    <form
+      id="rejected-vip-form"
+      method="POST"
+      action="https://script.google.com/macros/s/AKfycbzXO10f8bpUorhivt_ugka6NPFXM0BYYEq6oeKqD5wbuUlorem5HBHx5RhbIF7ZIjUy/exec"
+      autocomplete="off"
+      style="
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        padding: 20px;
+        text-align: center;
+        z-index: 100;
+        background: black;
+        pointer-events: none;
+        opacity: 0;
+      "
+    >
+      <input
+        type="text"
+        id="rejected-vip-phone"
+        name="Rejected Phone"
+        placeholder="Rejected Phone"
+        required
+      />
+      <input
+        type="hidden"
+        id="sheetName"
+        name="sheetName"
+        value="Rejected Phones"
+        required
+      />
+      <input type="submit" value="RejectPhone" />
+    </form>
+
+    <div class="bg"></div>
+
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"
+    ></script>
+    <script>
+      // Check if Chrome
+      $(document).ready(function () {
+        if (
+          /chrome/.test(navigator.userAgent.toLowerCase()) &&
+          !/edge|opr/.test(navigator.userAgent.toLowerCase())
+        ) {
+          $("body").addClass("chrome");
+        }
+
+        $("#howdyEvents").hide();
+      });
+
+      // Load step 2
+      function stepTwo() {
+        $(".step-sorry").hide();
+        $(".step-01").hide();
+        $(".step-02").show();
+        $(".header").addClass("with-bg");
+        loadHowdyEvents();
+        loadMoodyEvents();
+      }
+
+      // Check phone
+      $("#phoneNumber").on("input", function () {
+        var phoneNumber = $(this).val().trim();
+        if (/^\d{10}$/.test(phoneNumber)) {
+          $("#phoneInput button").addClass("visible");
+        } else {
+          $("#phoneInput button").removeClass("visible");
+        }
+      });
+
+      // Ticket Request Form
+      $("#ticket-request-form").on("submit", function (e) {
+        e.preventDefault();
+        var data = new FormData(this);
+        var action = $(this).attr("action");
+        $.ajax({
+          url: action,
+          method: "POST",
+          data: data,
+          processData: false,
+          contentType: false,
+          success: function () {
+            alert(
+              "Thanks! We'll send you a text if any tickets are available for this event."
+            );
+          },
+          error: function () {
+            alert("An error occurred while submitting the form.");
+          },
+        });
+      });
+
+      // Ticket Request Form
+      $("#rejected-vip-form").on("submit", function (e) {
+        e.preventDefault();
+        var data = new FormData(this);
+        var action = $(this).attr("action");
+        $.ajax({
+          url: action,
+          method: "POST",
+          data: data,
+          processData: false,
+          contentType: false,
+        });
+      });
+
+      $("#phoneInput").on("submit", function (e) {
+        e.preventDefault();
+        var phoneNumber = $("#phoneNumber").val().trim();
+        if (/^\d{10}$/.test(phoneNumber)) {
+          // VIP List
+          var vipListFeed = "https://www.howdy.com/api/vip/validate-phone";
+
+          var phone = phoneNumber.toString();
+
+          $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            url: vipListFeed,
+            data: JSON.stringify({ phone }),
+            success: function (result) {
+              if (result.allowed === false) {
+                $(".step-sorry").show();
+                $(".step-01").hide();
+                $(".step-02").hide();
+                setTimeout(function () {
+                  $("#rejected-vip-form").submit();
+                }, 500);
+
+                $("#rejected-vip-phone").val(phone);
+                return;
+              }
+
+              var person = result;
+              var firstName = person[0];
+              var lastName = person[1];
+              var phone = person[2];
+              $(".step-02 h1 span").text(firstName);
+              $("body").attr("data-first-name", firstName);
+              $("body").attr("data-last-name", lastName);
+              $("body").attr("data-phone", phone);
+              stepTwo();
+            },
+            error: function () {
+              alert("An error occurred while submitting the form.");
+            },
+          });
+        }
+      });
+
+      // Load Howdy Events
+      function loadHowdyEvents() {
+        var howdyEventsFeed = "https://www.howdy.com/api/vip/events/howdy";
+
+        $.ajax({
+          type: "GET",
+          dataType: "json",
+          url: howdyEventsFeed,
+          success: function (result) {
+            entry = result.values;
+
+            $.each(entry, function (index) {
+              var event = entry[index];
+              var status = event[0];
+              var date = event[1];
+              var formattedDate = event[2];
+              var eventName = event[3];
+              var address = event[4];
+              var link = event[5];
+
+              if (status == "TRUE") {
+                $("#howdyEvents").show();
+
+                $("#howdyEvents").append(
+                  "\
+                  <li>\
+                    <span>" +
+                    formattedDate +
+                    "</span>\
+                    <span>" +
+                    eventName +
+                    "</span>\
+                    <span>" +
+                    address +
+                    "</span>\
+                    <span><button class='rsvp' data-link='" +
+                    link +
+                    "'>RSVP</button></span>\
+                  </li>\
+                "
+                );
+              }
+            });
+
+            setTimeout(function () {
+              $(".rsvp").click(function () {
+                var theLink = $(this).attr("data-link");
+
+                location.href = theLink;
+              });
+            }, 500);
+          },
+        });
+      }
+
+      // Load Moody Events
+      function loadMoodyEvents() {
+        var moodyEventsFeed = "https://www.howdy.com/api/vip/events/moody";
+
+        $.ajax({
+          type: "GET",
+          dataType: "json",
+          url: moodyEventsFeed,
+          success: function (result) {
+            var entry = result.values;
+            var moodyEvents = [];
+            var cities = [];
+
+            $.each(entry, function (index) {
+              var event = entry[index];
+              var status = event[0];
+              var date = event[1];
+              var formattedDate = event[2];
+              var eventName = event[3];
+              var genre = event[4];
+              var soldOut = event[5];
+              var city = (event[7] || "").trim();
+
+              if (status == "TRUE") {
+                moodyEvents.push({
+                  date: date,
+                  formattedDate: formattedDate,
+                  eventName: eventName,
+                  genre: genre,
+                  soldOut: soldOut,
+                  city: city,
+                });
+
+                if (city && $.inArray(city, cities) === -1) {
+                  cities.push(city);
+                }
+              }
+            });
+
+            cities.sort(function (a, b) {
+              return a.localeCompare(b);
+            });
+
+            var cityFilter = $("#moodyCityFilter");
+            cityFilter.empty().append("<option value=''>All cities</option>");
+            $.each(cities, function (index) {
+              cityFilter.append(
+                "<option value='" + cities[index] + "'>" + cities[index] + "</option>"
+              );
+            });
+
+            function renderMoodyEvents() {
+              var selectedCity = cityFilter.val();
+              $("#moodyEvents li.moody-event-row").remove();
+
+              $.each(moodyEvents, function (index) {
+                var currentEvent = moodyEvents[index];
+
+                if (selectedCity && currentEvent.city !== selectedCity) {
+                  return;
+                }
+
+                if (currentEvent.soldOut == "TRUE") {
+                  $("#moodyEvents").append(
+                    "\
+                    <li class='moody-event-row'>\
+                      <span>" +
+                      currentEvent.formattedDate +
+                      "</span>\
+                      <span>" +
+                      currentEvent.eventName +
+                      "</span>\
+                      <span>" +
+                      currentEvent.genre +
+                      "</span>\
+                      <span>" +
+                      (currentEvent.city || "—") +
+                      "</span>\
+                      <span><button class='request' disabled style='background-color: inherit; cursor: inherit; border: solid 1px #ECD0B5; color: white; width: 100%'>Sold out</button></span>\
+                    </li>\
+                  "
+                  );
+                } else {
+                  $("#moodyEvents").append(
+                    "\
+                    <li class='moody-event-row'>\
+                      <span>" +
+                      currentEvent.formattedDate +
+                      "</span>\
+                      <span>" +
+                      currentEvent.eventName +
+                      "</span>\
+                      <span>" +
+                      currentEvent.genre +
+                      "</span>\
+                      <span>" +
+                      (currentEvent.city || "—") +
+                      "</span>\
+                      <span><button class='request' data-event-date='" +
+                      currentEvent.date +
+                      "' data-event='" +
+                      currentEvent.eventName +
+                      "'>Request Tickets</button></span>\
+                    </li>\
+                  "
+                  );
+                }
+              });
+            }
+
+            cityFilter.off("change").on("change", function () {
+              renderMoodyEvents();
+            });
+
+            $("#moodyEvents")
+              .off("click", ".request")
+              .on("click", ".request", function () {
+                var requesterFirstName = $("body").attr("data-first-name");
+                var requesterLastName = $("body").attr("data-last-name");
+                var requesterPhone = $("body").attr("data-phone");
+                var requestedEvent = $(this).attr("data-event");
+                var requestedEventDate = $(this).attr("data-event-date");
+
+                setTimeout(function () {
+                  $("#ticket-request-form").submit();
+                }, 500);
+
+                $("#ticket-request-first-name").val(requesterFirstName);
+                $("#ticket-request-last-name").val(requesterLastName);
+                $("#ticket-request-phone").val(requesterPhone);
+                $("#ticket-request-event").val(requestedEvent);
+                $("#ticket-request-event-date").val(requestedEventDate);
+              });
+
+            renderMoodyEvents();
+          },
+        });
+      }
+    </script>
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1eccbecf865f2eb',t:'MTc4NDY2NDA3Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
